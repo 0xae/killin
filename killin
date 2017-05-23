@@ -1,0 +1,73 @@
+#!/bin/bash
+# get proc-list 
+# select the nth col responsable for mem/cpu
+# confirmations | cool
+# kill the (n) greater
+
+# usage: ./kilin mem|cpu count
+
+
+function usage {
+	cat <<-END >&2
+	USAGE: killin -f [-nhrl] 
+             -f string    # mandatory filter (ex: java)
+             -n count     # get the first <count> lines
+             -r resource  # specify resource (cpu or mem)
+             -y           # dont ask for confirmation damn it
+             -l           # just list the processes 
+             -h           # show this help
+	
+END
+	exit 1
+}
+
+count=1
+resource='mem' 
+opt_noconf=0
+while getopts f:hn:r:w:yl opt
+do
+        case $opt in
+                f)	format=$OPTARG ;;
+                n)	count=$OPTARG ;;
+                r)	resource=$OPTARG ;;
+                y)	opt_noconf=1 ;;
+                l)	opt_list=1 ;;
+                w)	opt_watch=1 ;;
+                h|?)	usage ;;
+        esac
+done
+
+if [[ "$format" == '' ]]; then
+        usage
+fi
+
+if [[ "$resource" == 'mem' ]]; then
+    resource='size'
+elif [[ "$resource" == 'cpu' ]]; then
+    resource='pcpu'
+else
+    usage
+    exit 1
+fi
+
+count=$((count+0))
+
+echo '-------'
+ps h -Ao pid,fname,$resource --sort=-$resource | \
+        grep "$format" | \
+        awk '{print "kill ",$2,"pid=",$1,"$resource=",$3}' | \
+        head -n $count
+echo '-------'
+
+[[ $opt_list == 1 ]] && exit 0
+
+if [[ $opt_noconf == 0 ]] ; then
+       read -p 'are you certain? (y/n) ' name 
+       [[ $name == 'n' ]] && exit 0
+fi
+
+ps h -Ao pid,fname,$resource --sort=-$resource | \
+        grep "$format" | \
+        head -n $count | \
+        kill -9 $(awk '{print $1}')
+
