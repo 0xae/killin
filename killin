@@ -3,9 +3,7 @@
 # select the nth col responsable for mem/cpu
 # confirmations | cool
 # kill the (n) greater
-
 # usage: ./kilin mem|cpu count
-
 
 function usage {
 	cat <<-END >&2
