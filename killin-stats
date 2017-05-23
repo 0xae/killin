@@ -1,0 +1,2 @@
+#!/bin/bash
+./killin -f ' ' -l -n 50 -r cpu
