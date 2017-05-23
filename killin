@@ -66,8 +66,12 @@ if [[ $opt_noconf == 0 ]] ; then
        [[ $name == 'n' ]] && exit 0
 fi
 
-ps h -Ao pid,fname,$resource --sort=-$resource | \
+PROCS=$(ps h -Ao pid,fname,$resource --sort=-$resource | \
         grep "$format" | \
         head -n $count | \
-        kill -9 $(awk '{print $1}')
+        awk '{print $1}'
+)
+
+kill $PROCS
+
 
