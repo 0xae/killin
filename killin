@@ -27,7 +27,7 @@ opt_noconf=0
 while getopts f:hn:r:w:yl opt
 do
         case $opt in
-                f)	format=$OPTARG ;;
+                f)	filter=$OPTARG ;;
                 n)	count=$OPTARG ;;
                 r)	resource=$OPTARG ;;
                 y)	opt_noconf=1 ;;
@@ -37,7 +37,8 @@ do
         esac
 done
 
-if [[ "$format" == '' ]]; then
+# filter is mandatory
+if [[ "$filter" == '' ]]; then
         usage
 fi
 
@@ -55,24 +56,29 @@ count=$((count+0))
 
 echo '-------'
 ps h -Ao pid,fname,$resource --sort=-$resource | \
-        grep "$format" | \
+        grep "$filter" | \
         awk '{print "kill ",$2,"pid=",$1,"$resource=",$3}' | \
         head -n $count
 echo '-------'
 
+# just list
 [[ $opt_list == 1 ]] && exit 0
 
+# confirm
 if [[ $opt_noconf == 0 ]] ; then
        read -p 'are you certain? (y/n) ' name 
        [[ $name == 'n' ]] && exit 0
 fi
 
-PROCS=$(ps h -Ao pid,fname,$resource --sort=-$resource | \
-        grep "$format" | \
+PROCS=$(ps h -Ao pid,fname --sort=-$resource | \
+        grep "$filter" | \
         head -n $count | \
         awk '{print $1}'
 )
 
-kill $PROCS
-
-
+# -9 option ?
+if [[ $PROCS != '' ]]; then
+        kill $PROCS
+else
+        echo "No processes found!"
+fi
