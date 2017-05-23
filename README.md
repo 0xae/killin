@@ -41,6 +41,11 @@ Just list the top 5 java processes that are eating more cpu
 
     ./killin -f java -n 5 -r cpu -l
 
+## Tip
+If you wish to kill all processes that matches a certain criteria use `pkill` instead
+
+    pkill chromium
+
 ## Warning
 
 This is a very dangerous utility that should be used with lots of care.
