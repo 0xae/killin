@@ -46,6 +46,7 @@ if [[ "$resource" == 'mem' ]]; then
 elif [[ "$resource" == 'cpu' ]]; then
     resource='pcpu'
 else
+    echo "bad resource type $resource"
     usage
     exit 1
 fi
